@@ -18,8 +18,8 @@ Generate the `block.properties` and `block_ids.glsl` files
 ### validator.py
 Checks the integrity of the library.
 - [ ] Detect folders without `__blocks.tsv` files
-- [ ] Detect `__blocks.tsv` files with the wrong number of rows
-- [ ] Detect nested attributes that haven't been bubbled up
+- [x] Detect `__blocks.tsv` files with the wrong number of rows
+- [x] Detect nested attributes that aren't in their parent
 
 ## Frontends
 ### generator_cli.py
