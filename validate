@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python3 ./block_baker/validator.py $@
