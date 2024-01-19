@@ -12,10 +12,20 @@ def get_blocks(tag:str|Path):
 		path = files.get_path(tag)
 	if not files.is_tag(tag):
 		raise ValueError('No such tag:', tag)
+	val_index = -1
+	if ':' in tag:
+		tag, val = tag.split(':')
+		if not files.is_enum(tag):
+			raise ValueError('Tag {} is not an enum'.format(tag[:tag.index(':')]))
+		vals = values(tag)
+		val_index = vals.index(val)
+		if val_index == -1:
+			raise ValueError('Enum {} has no value {}'.format(tag, val))
 	out = []
 	with path.joinpath(files.BLOCKS_FILE).open() as stream:
-		for row in csv.reader(stream, delimiter='\t'):
-			out.extend(row)
+		for i, row in enumerate(csv.reader(stream, delimiter='\t')):
+			if i == val_index or val_index == -1:
+				out.extend(row)
 	return out
 
 
@@ -54,4 +64,4 @@ def values(tag:str):
 	if not files.is_enum(tag):
 		raise ValueError('No such enum: {}'.format(tag))
 	with open(files.get_structure_file(tag), 'r') as fr:
-		return fr.read().split('\t')
+		return [str.strip() for str in fr.read().split('\t')]

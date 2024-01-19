@@ -5,16 +5,22 @@ STRUCTURE_FILE = '__structure.tsv'
 DATA_DIR = Path('./data')
 
 def get_path(tag:str):
-	return DATA_DIR.joinpath(*tag.split('/'))
+	if ':' in tag:
+		tag = tag[:tag.index(':')]
+	return DATA_DIR.joinpath(*(tag.split('/')))
 
 def get_tag(path:Path):
 	return str(path.relative_to(DATA_DIR))
 
 def get_blocks_file(tag:str):
-	return DATA_DIR.joinpath(*tag.split('/'), BLOCKS_FILE)
+	if ':' in tag:
+		tag = tag[:tag.index(':')]
+	return DATA_DIR.joinpath(*(tag.split('/')), BLOCKS_FILE)
 
 def get_structure_file(tag:str):
-	return DATA_DIR.joinpath(*tag.split('/'), STRUCTURE_FILE)
+	if ':' in tag:
+		tag = tag[:tag.index(':')]
+	return DATA_DIR.joinpath(*(tag.split('/')), STRUCTURE_FILE)
 
 def get_parents(tag:str):
 	components = tag.split('/')

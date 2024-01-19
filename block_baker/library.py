@@ -5,6 +5,7 @@ import os
 from os import path
 import shutil
 from typing import List
+from pathlib import Path
 
 from core import files, query
 from core import blocks as Blocks
@@ -26,10 +27,13 @@ class EnumAction(Enum):
 	add = 'add'
 	remove = 'remove'
 
-def _remove(target_path:str):
+def _remove(target_path:Path):
 	confirm = input('You are about to delete the tag {}. Continue? (y/n)\n'.format(files.get_tag(target_path)))
-	if confirm.lower == 'y':
+	if confirm.lower() == 'y':
 		shutil.rmtree(target_path)
+		print('Removed!')
+	else:
+		print('Canceled.')
 
 def bool_tag(action:BoolAction, target:str):
 	target_path = files.get_path(target)
@@ -64,7 +68,11 @@ def enum_create(target:str, values:List[str]):
 	print('Created enum tag: {}'.format(target))
 	
 def enum_delete(target:str):
-	_remove(target)
+	target_path = get_path(target)
+	if not is_enum(target):
+		print('No such enum: {}'.format(target))
+		exit()
+	_remove(target_path)
 	
 def merge(old:List[str], add:List[str]):
 	i_old = 0
@@ -89,6 +97,7 @@ def enum_edit(target:str, add:List[str], remove:List[str]):
 	
 	add.sort()
 	old = query.values(target)
+
 	structure = [val for val in merge(old, add) if val not in remove]
 	with structure_path.open('w') as structure_fw:
 		csv_w = csv.writer(structure_fw, delimiter='\t')
@@ -96,15 +105,14 @@ def enum_edit(target:str, add:List[str], remove:List[str]):
 	
 	with blocks_path.open('r') as blocks_fr:
 		lines = [line.strip() for line in blocks_fr.readlines()]
-
+	
 	newlines = []
 	for item in structure:
-		if item in old:
-			i_old = old.index(item)
+		if item in lines:
+			i_old = lines.index(item)
 			newlines.append(lines[i_old])
 		else:
 			newlines.append('')
-	
 	with blocks_path.open('w') as blocks_fw:
 		blocks_fw.write('\n'.join(newlines))
 	print('Edited enum {}'.format(target))
@@ -197,6 +205,9 @@ def edit_blocks(blocks:List[str], add:List[str], remove:List[str]):
 		else:
 			_remove_blocks(tag, blocks)
 
+def query_blocks(tag:str):
+	print(' '.join(query.get_blocks(tag)))
+
 subparsers = parser.add_subparsers() 
 
 flag_parser = subparsers.add_parser('bool', help="Create or delete boolean tags")
@@ -227,6 +238,10 @@ blocks_parser.add_argument('blocks', type=str, nargs='+')
 blocks_parser.add_argument('--add', '-a', type=str, nargs='+', default=[], help='Add these tags.')
 blocks_parser.add_argument('--remove', '-r', type=str, nargs='+', default=[], help='Remove these tags.')
 blocks_parser.set_defaults(func=edit_blocks)
+
+query_parser = subparsers.add_parser('query', help="Query the library")
+query_parser.add_argument('tag', type=str)
+query_parser.set_defaults(func=query_blocks)
 
 if __name__ == "__main__":
 	args = parser.parse_args()
