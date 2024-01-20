@@ -187,3 +187,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Example directory
+/example/**/block.properties
+/example/**/*.glsl
