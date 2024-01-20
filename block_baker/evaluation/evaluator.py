@@ -3,7 +3,9 @@ from .parser import parse, BinaryOperator, Identity
 from core import query
 
 def _or(left:List[str], right:List[str]):
-	return left.extend(right)
+	hold = left.copy()
+	hold.extend([item for item in right if item not in left])
+	return hold
 
 def _and(left:List[str], right:List[str]):
 	return [item for item in left if item in right]
