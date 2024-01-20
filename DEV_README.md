@@ -6,12 +6,12 @@ A CLI editor for the library.
 - [x] Delete tags
 - [x] Edit the options of enum tags
 - [x] Nested tags
-### generator_core.py
+### exporter.py
 Generate the `block.properties` and `block_ids.glsl` files
-- [ ] Tag filters
-- [ ] Input from JSON string
-- [ ] Assign unique IDs to filter combos
-- [ ] Generate `block_ids.glsl`
+- [x] Tag filters
+- [x] Input from JSON string
+- [x] Assign unique IDs to filter combos
+- [x] Generate `block_ids.glsl`
 - [ ] Support special cases
 	- [ ] Ensure `block_ids.glsl` still decodes special case features
 - [ ] Conditional inclusion (`#ifdef`) support
@@ -22,10 +22,10 @@ Checks the integrity of the library.
 - [x] Detect nested attributes that aren't in their parent
 
 ## Frontends
-### generator_cli.py
+### exporter.py
 A command-line interface for the generator.
-- [ ] Loads a config file path
-- [ ] Saves the generated files in sensible (or specified) locations
+- [x] Loads a config file path
+- [x] Saves the generated files in sensible (or specified) locations
 ### index.html
 Runs generator_core.py using pyscript (a WebAssembly Python interpreter)
 - [ ] Visual config editor
