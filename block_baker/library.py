@@ -2,7 +2,6 @@ import argparse
 import csv
 from enum import Enum
 import os
-from os import path
 import shutil
 from typing import List
 from pathlib import Path
@@ -206,8 +205,15 @@ def edit_blocks(blocks:List[str], add:List[str], remove:List[str]):
 		else:
 			_remove_blocks(tag, blocks)
 
-def query_blocks(expression:str):
-	print(' '.join(evaluate(expression)))
+def query_blocks(expression:str|List[str]):
+	if isinstance(expression, list):
+		expression = ' '.join(expression)
+	print("Evaluating expression: {}".format(expression))
+	result = evaluate(expression)
+	if result:
+		print(' '.join(result))
+	else:
+		print('No blocks meet this criteria.')
 
 subparsers = parser.add_subparsers() 
 
@@ -241,7 +247,7 @@ blocks_parser.add_argument('--remove', '-r', type=str, nargs='+', default=[], he
 blocks_parser.set_defaults(func=edit_blocks)
 
 query_parser = subparsers.add_parser('query', help="Query the library")
-query_parser.add_argument('expression', type=str)
+query_parser.add_argument('expression', type=str, nargs='+', help='The filter to evaluate (ex: "fungus & emissive")')
 query_parser.set_defaults(func=query_blocks)
 
 if __name__ == "__main__":
