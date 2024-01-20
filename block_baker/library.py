@@ -10,9 +10,10 @@ from pathlib import Path
 from core import files, query
 from core import blocks as Blocks
 from core.files import get_path, get_blocks_file, get_structure_file, is_tag, is_enum, is_bool, get_parents
+from evaluation.evaluator import evaluate
 
 parser = argparse.ArgumentParser(
-	prog="compendium",
+	prog="library",
 	description="An editor for the block features compendium",
 	epilog='Nested tags are written as "parent/child" and enum tags are written as "tag:value"'
 )
@@ -205,8 +206,8 @@ def edit_blocks(blocks:List[str], add:List[str], remove:List[str]):
 		else:
 			_remove_blocks(tag, blocks)
 
-def query_blocks(tag:str):
-	print(' '.join(query.get_blocks(tag)))
+def query_blocks(expression:str):
+	print(' '.join(evaluate(expression)))
 
 subparsers = parser.add_subparsers() 
 
@@ -240,7 +241,7 @@ blocks_parser.add_argument('--remove', '-r', type=str, nargs='+', default=[], he
 blocks_parser.set_defaults(func=edit_blocks)
 
 query_parser = subparsers.add_parser('query', help="Query the library")
-query_parser.add_argument('tag', type=str)
+query_parser.add_argument('expression', type=str)
 query_parser.set_defaults(func=query_blocks)
 
 if __name__ == "__main__":

@@ -18,6 +18,8 @@ def get_blocks(tag:str|Path):
 		if not files.is_enum(tag):
 			raise ValueError('Tag {} is not an enum'.format(tag[:tag.index(':')]))
 		vals = values(tag)
+		if val not in vals:
+			raise ValueError('Tag {} has no such value {}\nValid values are: {}'.format(tag, val, repr(vals)))
 		val_index = vals.index(val)
 		if val_index == -1:
 			raise ValueError('Enum {} has no value {}'.format(tag, val))
