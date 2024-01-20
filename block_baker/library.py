@@ -96,25 +96,26 @@ def enum_edit(target:str, add:List[str], remove:List[str]):
 		print('No such enum: {}'.join(target))
 	
 	add.sort()
-	old = query.values(target)
+	structure_old = query.values(target)
 
-	structure = [val for val in merge(old, add) if val not in remove]
+	structure = [val for val in merge(structure_old, add) if val not in remove]
 	with structure_path.open('w') as structure_fw:
 		csv_w = csv.writer(structure_fw, delimiter='\t')
 		csv_w.writerow(structure)
 	
 	with blocks_path.open('r') as blocks_fr:
-		lines = [line.strip() for line in blocks_fr.readlines()]
+		lines_old = [line.strip() for line in blocks_fr.readlines()]
 	
-	newlines = []
-	for item in structure:
-		if item in lines:
-			i_old = lines.index(item)
-			newlines.append(lines[i_old])
+	lines_new = []
+	for key in structure:
+		if key in structure_old:
+			i_old = structure_old.index(key)
+			lines_new.append(lines_old[i_old])
 		else:
-			newlines.append('')
+			lines_new.append('')
+			
 	with blocks_path.open('w') as blocks_fw:
-		blocks_fw.write('\n'.join(newlines))
+		blocks_fw.write('\n'.join(lines_new))
 	print('Edited enum {}'.format(target))
 
 def _add_blocks(tag:str, add:List[str], * , value:str=...):
