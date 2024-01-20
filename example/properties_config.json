@@ -2,7 +2,7 @@
 	"properties_file":"./shaders/block.properties",
 	"decoder_file":"./shaders/util/block_properties.glsl",
 
-	"states": {
+	"flags": {
 		"sways": "sway",
 		"swaySlow":"sway/slow",
 		"swayLower":"sway:lower | sway:short",

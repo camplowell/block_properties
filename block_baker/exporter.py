@@ -59,8 +59,8 @@ def export(config:str):
 	print('Properties: {}'.format(props_path))
 	print('Decoder: {}'.format(decoder_path))
 
-	states = list(dict(config_json['states']).keys())
-	ids = bakeState(dict(config_json['states']))
+	states = list(dict(config_json['flags']).keys())
+	ids = bakeState(dict(config_json['flags']))
 	generate_properties_file(props_path, ids)
 	generate_decoder_file(decoder_path, list(ids.keys()), states)
 	
