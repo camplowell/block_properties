@@ -1,0 +1,23 @@
+{
+	"properties_file":"./shaders/block.properties",
+	"decoder_file":"./shaders/util/block_properties.glsl",
+
+	"states": {
+		"sways": "sway",
+		"swaySlow":"sway/slow",
+		"swayLower":"sway:lower | sway:short",
+		"swayUpper":"sway:upper",
+		"swayFloating":"sway:floating",
+		"swayHanging":"sway:hanging",
+		"swayLeaves":"sway:full",
+
+		"patchy": "foliage - (foliage/crop | foliage/flower)",
+		"emissive": "emissive",
+		"maskedEmissive": "emissive/masked",
+		"subsurface":"subsurface",
+
+		"maskedShadows": "shadows:masked",
+		"shadowless": "shadows:none"
+	},
+	"special_cases":["minecraft:water", "minecraft:brewing_stand", "minecraft:nether_portal", "minecraft:end_portal"]
+}
