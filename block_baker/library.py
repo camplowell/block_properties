@@ -98,7 +98,7 @@ def enum_edit(target:str, add:List[str], remove:List[str]):
 	add.sort()
 	structure_old = query.values(target)
 
-	structure = [val for val in merge(structure_old, add) if val not in remove]
+	structure = [val for val in merge(structure_old, add) if val and (val not in remove)]
 	with structure_path.open('w') as structure_fw:
 		csv_w = csv.writer(structure_fw, delimiter='\t')
 		csv_w.writerow(structure)
