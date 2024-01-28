@@ -1,0 +1,14 @@
+{
+	"properties_file":"block.properties",
+	"decoder_file":"block_properties.glsl",
+
+	"flags": {
+		"isStairs":"stairs/solid/bottom + stairs/solid/top",
+		"hasSolidBottom":"stairs/solid/bottom",
+		"hasSolidTop":"stairs/solid/top",
+		"hasSolidNorth":"stairs/solid/north",
+		"hasSolidSouth":"stairs/solid/south",
+		"hasSolidEast":"stairs/solid/east",
+		"hasSolidWest":"stairs/solid/west"
+	}
+}
