@@ -2,13 +2,35 @@ from typing import List
 from .parser import parse, BinaryOperator, Identity
 from core import query
 
+def childOf(a, b):
+	return a.startswith(b) and a[len(b)] in [":", ","]
+
+def contains(collection, search):
+	for item in collection:
+		if item == search or childOf(item, search):
+			return True
+	return False
+
 def _or(left:List[str], right:List[str]):
 	hold = left.copy()
-	hold.extend([item for item in right if item not in left])
+	# Convert items in left to parent if the parent is in right
+	for i, item in enumerate(hold):
+		for rightItem in right:
+			if childOf(item, rightItem):
+				hold[i] = rightItem
+	# Add items that are in right but not left
+	hold.extend([item for item in right if not contains(left, item)])
 	return hold
 
 def _and(left:List[str], right:List[str]):
-	return [item for item in left if item in right]
+	result = []
+	for l in left:
+		for r in right:
+			if l == r or childOf(l, r):
+				result.append(l)
+			elif childOf(r, l):
+				result.append(r)
+	return result
 
 def _sub(left:List[str], right:List[str]):
 	return [item for item in left if item not in right]

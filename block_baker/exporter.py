@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 import json
 from typing import Dict, List
-from evaluation.evaluator import evaluate
+from evaluation import evaluator
 import sys
 
 arg_parser = argparse.ArgumentParser(
@@ -12,12 +12,13 @@ arg_parser = argparse.ArgumentParser(
 )
 
 def swizzle(a:set, b:set):
-	return (a.difference(b), b.difference(a), a.intersection(b))
+	both = evaluator._and(b, a)
+	return (evaluator._sub(a, both), evaluator._sub(b, both), both)
 
 def bakeState(states) -> Dict[frozenset, set]:
 	all_states = dict()
 	for state, expression in states.items():
-		current_blocks = set(evaluate(expression))
+		current_blocks = set(evaluator.evaluate(expression))
 		existing_keys = list(all_states.keys())
 		for key in existing_keys:
 			all_states[key], current_blocks, all_states[key.union([state])] = swizzle(all_states[key], current_blocks)
@@ -52,7 +53,7 @@ def export(config:str):
 	config_path = Path(config)
 	with config_path.open() as config_source:
 		config_json = json.load(config_source)
-	config_dir = config_path.parent.relative_to('.')
+	config_dir = config_path.parent.relative_to('.') if config_path.is_relative_to('.') else config_path.parent
 	
 	props_path = config_dir.joinpath(config_json['properties_file'])
 	decoder_path = config_dir.joinpath(config_json['decoder_file'])
@@ -63,8 +64,6 @@ def export(config:str):
 	ids = bakeState(dict(config_json['flags']))
 	generate_properties_file(props_path, ids)
 	generate_decoder_file(decoder_path, list(ids.keys()), states)
-	
-
 
 arg_parser.add_argument('config', type=str)
 
