@@ -142,6 +142,8 @@ class BoolTag(Tag):
 			self._contents = self._load_file(self._KEY) or BlockCollection()
 
 	def save(self):
+		if self.parent():
+			self.parent().save()
 		self._save_file(self._KEY, self._contents or BlockCollection())
 	
 	def delete(self):
