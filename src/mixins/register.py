@@ -3,6 +3,7 @@ from .state_mixin import StateTag
 
 def register_all_mixins(library:TagLibrary):
 	register_stair_mixins(library)
+	register_slab_mixins(library)
 
 
 def register_stair_mixins(library:TagLibrary):
@@ -16,3 +17,10 @@ def register_stair_mixins(library:TagLibrary):
 		tag.add_state({'shape':['inner_left'], 'facing':[s,r], 'half':['bottom', 'top']})
 		tag.add_state({'shape':['inner_right'], 'facing':[l,s], 'half':['bottom', 'top']})
 		library.register_mixin(tag)
+
+def register_slab_mixins(library:TagLibrary):
+	get_slabs = lambda:library.get('slab').get()
+	library.register_mixin(StateTag('slab/bottom', get_slabs).add_state({'type':['bottom']}))
+	library.register_mixin(StateTag('slab/top', get_slabs).add_state({'type':['top']}))
+	library.register_mixin(StateTag('slab/half', get_slabs).add_state({'type':['bottom', 'top']}))
+	library.register_mixin(StateTag('slab/double', get_slabs).add_state({'type':['double']}))
