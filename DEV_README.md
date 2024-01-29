@@ -4,7 +4,8 @@ Manage a collection of block tags on disk and in memory
 - [x] Named tags
 - [x] Nested tags
 - [x] Enumerated tags
-- [x] 
+- [x] Memory-only library
+- [x] Derived tags
 ### exporter.py
 Generate the `block.properties` and `block_ids.glsl` files
 - [x] Tag filters
