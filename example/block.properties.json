@@ -2,13 +2,20 @@
 	"properties_file":"block.properties",
 	"decoder_file":"block_properties.glsl",
 
+	"start_index": 1000,
+	"decoder_pragma":"UTIL_BLOCK_PROPERTIES",
+
 	"flags": {
+		"maskedLmOpacity":"slab/half + stairs/solid/bottom + stairs/solid/top",
+		
+		"isSlab":"slab/half",
 		"isStairs":"stairs/solid/bottom + stairs/solid/top",
-		"hasSolidBottom":"stairs/solid/bottom",
-		"hasSolidTop":"stairs/solid/top",
+
+		"hasSolidBottom":"stairs/solid/bottom + slab/bottom",
+		"hasSolidTop":"stairs/solid/top + slab/top",
 		"hasSolidNorth":"stairs/solid/north",
-		"hasSolidSouth":"stairs/solid/south",
 		"hasSolidEast":"stairs/solid/east",
+		"hasSolidSouth":"stairs/solid/south",
 		"hasSolidWest":"stairs/solid/west"
 	}
 }
