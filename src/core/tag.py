@@ -19,7 +19,7 @@ class TagLibrary:
 		self._root = _Node()
 	
 	def get(self, tag:str):
-		node = self._get_node(tag)
+		node = self._get_node(tag, create=bool(self.folder))
 		if node.tag:
 			return node.tag
 		folder = self._get_folder(tag)
