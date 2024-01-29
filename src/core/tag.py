@@ -82,8 +82,11 @@ class Tag:
 
 	def get(self) -> BlockCollection:
 		if type(self) is Tag:
-			raise ValueError('Tried to call get on a generic Tag.')
+			raise RuntimeError('Tried to call get on a generic Tag.')
 		raise NotImplementedError(f'Subclass {type(self)} is missing a get method!')
+	
+	def add(self, _:BlockCollection):
+		raise RuntimeError('Tried to call add on a generic Tag')
 	
 	def __repr__(self):
 		return self._tag
@@ -155,45 +158,73 @@ class EnumTag(Tag):
 		self._contents:Dict[str, BlockCollection] = dict()
 		self._edited = set()
 		for value in set(values):
-			self._contents[value] = None
+			self._contents[value] = BlockCollection()
 	
 	def get(self, value:str=...):
 		if value is ...:
 			result = BlockCollection()
-			for val in self.values:
+			for val in self.values():
 				result.insert(self.get(val))
 			return result
+		if not self._load(value):
+			raise ValueError(f'The tag {self} has no value "{value}"')
 		
-		if value not in self._contents or self._contents[value] is None:
-			loaded = self._load_file(value)
-			if loaded is None:
-				if value in self._contents:
-					self._contents[value] = BlockCollection()
-				else:
-					raise ValueError(f'The tag {self} has no value "{value}"')
-			self._contents[value] = loaded
 		return self._contents[value].copy()
+
+	def add(self, *args):
+		"""_summary_
+
+		Args:
+			value (str): the value to add the blocks to
+			blocks (Iterable[Block]): the blocks to add
+		"""
+		if len(args) == 1:
+			self._addOne(*args)
+			return
+		elif len(args) == 2:
+			self._add(*args)
+			return
+		raise RuntimeError(f'EnumValue.add expects 1 or 2 arguments; got {len(args)}')
 	
-	def add(self, value:str, blocks:Iterable[Block]):
-		if value not in self._contents:
+	def _addOne(self, blocks:Iterable[Block]):
+		mine = self.get()
+		if blocks - mine:
+			raise RuntimeError(f'Cannot automatically assign value for enum tag {self}')
+
+	def _add(self, value:str, blocks:Iterable[Block]):
+		parent = self.parent()
+		if parent:
+			self.parent().add(blocks)
+		
+		if not self._load(value):
 			raise ValueError(f'Enum tag {self} has no value "{value}"')
+		
 		self._contents[value].insert(blocks)
 		self._edited.add(value)
 	
 	def remove(self, value:str, blocks:Iterable[Block]):
-		if value not in self._contents:
+		if not self._load(value):
 			raise ValueError(f'Enum tag {self} has no value "{value}"')
 		self._contents[value].remove(blocks)
 		self._edited.add(value)
+
+	def values(self):
+		folder = self._library._get_folder(self)
+		if folder and folder.exists():
+			for p in folder.iterdir():
+				if p.suffix == '.tsv' and p.stem not in self._contents:
+					self._contents[p.stem] = None
+		return self._contents.keys()
 	
 	def add_value(self, value:str):
-		if value in self._contents:
+		if value in self.values():
 			raise ValueError(f'Enum tag {self} already has the value "{value}"')
+		
 		self._contents[value] = BlockCollection()
 		self._edited.add(value)
 
 	def remove_value(self, value:str):
-		if value not in self._contents:
+		if value not in self.values():
 			raise ValueError(f'Enum tag {self} has no value "{value}"')
 		del self._contents[value]
 		self._edited.add(value)
@@ -201,6 +232,8 @@ class EnumTag(Tag):
 	def save(self):
 		if not self._library.folder:
 			raise RuntimeError(f'Cannot save memory-only tag {self}')
+		if self.parent():
+			self.parent().save()
 		for value in self._edited:
 			if value in self._contents: # Modified contents
 				self._save_file(value, self._contents[value] or BlockCollection())
@@ -209,3 +242,13 @@ class EnumTag(Tag):
 	
 	def delete(self):
 		self._delete()
+
+	def _load(self, value):
+		"""Attempt to load the value into memory. Returns if the value exists."""
+		if value in self._contents and self._contents[value] is not None:
+			return True
+		loaded = self._load_file(value)
+		if loaded is None:
+			return False
+		self._contents[value] = loaded
+		return True
