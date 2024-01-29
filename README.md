@@ -10,10 +10,7 @@ Included is a program that can be used to more easily query and edit the library
 Example Usages:
 ```
 echo Create a new enumerated tag:
-./library enum create sway
-
-echo Add states to the new enumerated tag:
-./library enum edit sway -a lower upper full
+./library tag create sway -v lower upper full
 
 echo Add blocks to the enum property
 ./library blocks minecraft:grass minecraft:tallgrass:half=lower -a sway:lower
