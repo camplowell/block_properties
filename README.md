@@ -35,9 +35,9 @@ The decoder exposes a number of functions specified in the config to determine i
 
 The query program supports a number of ways to combine the tags specified in the library:
 
+`+` includes blocks that appear in either.  
+`-` includes blocks that appear on the left, but not on the right.  
 `&` includes blocks that appear in both the left and right inputs.  
-`|` includes blocks that appear in either.  
 `^` includes blocks that appear in either, but not both.
-`-` includes blocks that appear on the left, but not on the right.
 
 For a complete example of the configuration file, see `example/properties_config.json`

@@ -1,11 +1,10 @@
 ## Backends
-### library.py
-A CLI editor for the library.
-- [x] Add/remove tags to/from blocks
-- [x] Create new enum or boolean tags
-- [x] Delete tags
-- [x] Edit the options of enum tags
+### tags
+Manage a collection of block tags on disk and in memory
+- [x] Named tags
 - [x] Nested tags
+- [x] Enumerated tags
+- [x] 
 ### exporter.py
 Generate the `block.properties` and `block_ids.glsl` files
 - [x] Tag filters
@@ -15,19 +14,26 @@ Generate the `block.properties` and `block_ids.glsl` files
 - [ ] Support special cases
 	- [ ] Ensure `block_ids.glsl` still decodes special case features
 - [ ] Conditional inclusion (`#ifdef`) support
-### validator.py
-Checks the integrity of the library.
-- [ ] Detect folders without `__blocks.tsv` files
-- [x] Detect `__blocks.tsv` files with the wrong number of rows
-- [x] Detect nested attributes that aren't in their parent
+### Combinations
+- [x] Basic list manipulations (union, difference, intersection)
+- [x] Support blockstate with single values
+- [x] Support blockstate with multiple values
 
 ## Frontends
+### library.py
+A CLI editor for the library.
+- [x] Add/remove tags to/from blocks
+- [x] Create new enum or boolean tags
+- [x] Delete tags
+- [x] Edit the options of enum tags
+- [x] Nested tags
 ### exporter.py
 A command-line interface for the generator.
 - [x] Loads a config file path
 - [x] Saves the generated files in sensible (or specified) locations
-### index.html
-Runs generator_core.py using pyscript (a WebAssembly Python interpreter)
+### Web interface
+A visual interface for exporter.py
+- [ ] Run a pre-defined JSON (using pyscript?)
 - [ ] Visual config editor
 	- [ ] Toggle features
 	- [ ] Enum features
