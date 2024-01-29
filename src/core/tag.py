@@ -65,9 +65,9 @@ class TagLibrary:
 			here = here.children[part]
 		return here
 	
-	def _get_folder(self, tag:str):
+	def _get_folder(self, tag:str|Tag):
 		if self.folder:
-			return self.folder.joinpath(tag)
+			return self.folder.joinpath(str(tag))
 		return None
 
 class Tag:
@@ -91,17 +91,17 @@ class Tag:
 	def _file(self, key:str):
 		if not self._library.folder:
 			return None
-		return self._library._get_folder(self._tag).joinpath(f'{key}.tsv')
+		return self._library._get_folder(self._tag).joinpath(f'{str(key)}.tsv')
 	
 	def _load_file(self, key:str):
 		file = self._file(key)
 		if file is None:
 			return None
+		output = BlockCollection()
 		with file.open('r') as stream:
-			try:
-				return BlockCollection.from_strings(next(csv.reader(stream, delimiter='\t')))
-			except StopIteration:
-				return BlockCollection()
+			for line in csv.reader(stream, delimiter='\t'):
+				output.insert(BlockCollection.from_strings(line))
+		return output
 
 	def _save_file(self, key:str, blocks:BlockCollection):
 		file:Path = self._file(key)
@@ -109,8 +109,7 @@ class Tag:
 			raise RuntimeError('Cannot save state to disk in a memory-only library!')
 		file.parent.mkdir(exist_ok=True)
 		with file.open('w') as stream:
-			writer = csv.writer(stream, delimiter='\t')
-			writer.writerow(blocks)
+			stream.write('\n'.join([repr(block) for block in blocks]))
 	
 	def _delete(self):
 		folder = self._library._get_folder(self)
