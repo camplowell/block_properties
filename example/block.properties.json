@@ -7,7 +7,7 @@
 
 	"flags": {
 		"maskedLmOpacity":"slab/half + stairs/solid/bottom + stairs/solid/top",
-		
+
 		"isSlab":"slab/half",
 		"isStairs":"stairs/solid/bottom + stairs/solid/top",
 
@@ -16,6 +16,8 @@
 		"hasSolidNorth":"stairs/solid/north",
 		"hasSolidEast":"stairs/solid/east",
 		"hasSolidSouth":"stairs/solid/south",
-		"hasSolidWest":"stairs/solid/west"
+		"hasSolidWest":"stairs/solid/west",
+
+		"isOakStairs":"[oak_stairs]"
 	}
 }
