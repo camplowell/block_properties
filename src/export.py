@@ -89,7 +89,7 @@ def generate_decoder_file(path:Path, masks:Dict[FrozenSet[str], BlockCollection]
 	]
 
 	for state in states:
-		valid_ids = ["id == {}".format(i + start_index) for (i, mask) in mapping.items() if state in mask]
+		valid_ids = ["id == {}".format(i) for (i, mask) in mapping.items() if state in mask]
 		lines.append(f'\nbool {state}(int id) {{')
 		lines.append(f'    return {" || ".join(valid_ids) if valid_ids else "false"};')
 		lines.append( "}")
