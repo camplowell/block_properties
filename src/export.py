@@ -1,6 +1,7 @@
 import argparse
 import json
 from pathlib import Path
+import sys
 from typing import Dict, FrozenSet, List
 
 from core.block import BlockCollection
@@ -60,17 +61,20 @@ def generate_properties_file(path:Path, masks:Dict[FrozenSet[str], BlockCollecti
 		""
 	]
 	i = start_index
-	
+	mapping:Dict[int, FrozenSet[str]] = dict()
 	for mask in sorted(masks.keys(), key=_set_key(states)):
 		blocks = masks[mask]
 		lines.append(f'\n# {", ".join(sorted(mask, key=lambda x: states.index(x)))}')
 		lines.append(f'block.{i} = {repr(blocks)}')
+		mapping[i] = mask
 		i += 1
 	
 	with path.open('w') as writer:
 		writer.write('\n'.join(lines))
+	
+	return mapping
 
-def generate_decoder_file(path:Path, masks:Dict[FrozenSet[str], BlockCollection], config:dict):
+def generate_decoder_file(path:Path, masks:Dict[FrozenSet[str], BlockCollection], config:dict, mapping:Dict[int, FrozenSet[str]]):
 	states = list(config['flags'].keys())
 	start_index = config['start_index'] or 1
 	decoder_pragma = config['decoder_pragma'] or 'BLOCK_PROPERTIES_DECODER'
@@ -85,7 +89,7 @@ def generate_decoder_file(path:Path, masks:Dict[FrozenSet[str], BlockCollection]
 	]
 
 	for state in states:
-		valid_ids = ["id == {}".format(i + start_index) for (i, mask) in enumerate(masks) if state in mask]
+		valid_ids = ["id == {}".format(i + start_index) for (i, mask) in mapping.items() if state in mask]
 		lines.append(f'\nbool {state}(int id) {{')
 		lines.append(f'    return {" || ".join(valid_ids) if valid_ids else "false"};')
 		lines.append( "}")
@@ -95,12 +99,12 @@ def generate_decoder_file(path:Path, masks:Dict[FrozenSet[str], BlockCollection]
 	with path.open('w') as writer:
 		writer.write('\n'.join(lines))
 	
-def export(config:str):
-	config_path = Path(config)
-	with config_path.open() as config_stream:
+def export(config:Path):
+	config = Path(config)
+	with config.open() as config_stream:
 		config_json = json.load(config_stream)
-	print(f'Loaded configuration at {config_path}.')
-	config_dir = config_path.parent
+	print(f'Loaded configuration at {config}.')
+	config_dir = config.parent
 
 	props_path = config_dir.joinpath(config_json['properties_file'])
 	decoder_path = config_dir.joinpath(config_json['decoder_file'])
@@ -110,8 +114,8 @@ def export(config:str):
 	print(f'Found {len(states)} flags.')
 	masks = bake_masks(flags)
 	print(f'Outputting to disk...')
-	generate_properties_file(props_path, masks, config_json)
-	generate_decoder_file(decoder_path, masks, config_json)
+	mapping = generate_properties_file(props_path, masks, config_json)
+	generate_decoder_file(decoder_path, masks, config_json, mapping)
 	print('Done!')
 
 arg_parser = argparse.ArgumentParser(
@@ -120,8 +124,9 @@ arg_parser = argparse.ArgumentParser(
 	epilog='Nested tags are written as "parent/child" and enum tags are written as "tag:value"'
 )
 
-arg_parser.add_argument('config', type=str)
+arg_parser.add_argument('config', type=str, nargs='+')
 
 if __name__ == "__main__":
 	args = arg_parser.parse_args()
+	args.config = ' '.join(args.config)
 	export(**args.__dict__)
