@@ -1,16 +1,16 @@
 from typing import Callable, Dict, List
 from core.tag import Tag
-from core.block import BlockCollection
+from core.block import BlockCollection, BlockState
 import warnings
 
 class StateTag(Tag):
 	def __init__(self, tag:str, supplier:Callable[[], BlockCollection]):
 		super().__init__(tag)
 		self._supplier = supplier
-		self._blockstates:List[Dict[str, List[str]]] = []
+		self._blockstates:List[BlockState] = []
 	
-	def add_state(self, state:Dict[str, List[str]]):
-		self._blockstates.append(state)
+	def add_state(self, state:Dict[str, str]):
+		self._blockstates.append(BlockState(state))
 		return self
 
 	def get(self):

@@ -4,7 +4,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import shutil
 from typing import Dict, Iterable
-import warnings
 
 from core.block import Block, BlockCollection
 
@@ -50,7 +49,7 @@ class TagLibrary:
 	def register_mixin(self, mixin:Tag):
 		node = self._get_node(str(mixin), create=True)
 		if node.tag:
-			warnings.warn(f'Overriding existing tag {str(mixin)} with mixin!')
+			print(f'Overriding existing tag {str(mixin)} with mixin!')
 		node.tag = mixin
 		mixin._library = self
 	
@@ -147,6 +146,7 @@ class BoolTag(Tag):
 	def save(self):
 		if self.parent():
 			self.parent().save()
+		print(f'Saving {self}')
 		self._save_file(self._KEY, self._contents or BlockCollection())
 	
 	def delete(self):
@@ -159,6 +159,7 @@ class EnumTag(Tag):
 		self._edited = set()
 		for value in set(values):
 			self._contents[value] = BlockCollection()
+			self._edited.add(value)
 	
 	def get(self, value:str=...):
 		if value is ...:
@@ -232,12 +233,16 @@ class EnumTag(Tag):
 	def save(self):
 		if not self._library.folder:
 			raise RuntimeError(f'Cannot save memory-only tag {self}')
+		
 		if self.parent():
 			self.parent().save()
+		
 		for value in self._edited:
 			if value in self._contents: # Modified contents
+				print(f'Saving {self}:{value}')
 				self._save_file(value, self._contents[value] or BlockCollection())
 			else:
+				print(f'Unlinking {self}:{value}')
 				self._file(value).unlink()
 	
 	def delete(self):

@@ -4,10 +4,9 @@ from typing import Dict, FrozenSet, List, Iterable, Set
 
 class BlockState:
 	def __init__(self, state:Dict[str, Set[str]]):
-		self._dict:Dict[str, FrozenSet[str]] = dict()
+		self._dict:Dict[str, str] = dict()
 		for key in sorted(state.keys()):
-			self._dict[key] = frozenset(sorted(state[key]))
-		self._hash = None
+			self._dict[key] = str(state[key])
 	
 	def items(self):
 		return self._dict.items()
@@ -26,7 +25,7 @@ class BlockState:
 		for key, value in self.items():
 			if key not in other:
 				return False
-			if not other[key] <= value:
+			if not other[key] == value:
 				return False
 		return True
 	
@@ -44,9 +43,8 @@ class Block:
 		parts = block.split(':')
 		state = dict()
 		while '=' in parts[-1]:
-			key, vals = parts.pop().split('=')
-			vals = vals.split(',')
-			state[key] = set(vals)
+			key, val = parts.pop().split('=')
+			state[key] = val
 		
 		name = parts.pop()
 		namespace = parts[0] if parts else "minecraft"
@@ -63,19 +61,6 @@ class Block:
 		if new_state is None:
 			return None
 		return Block(self.namespace, self.name, new_state)
-	
-	def without_state(self, state:BlockState):
-		if self.state.isChildOf(state):
-			return None
-		new_state = dict()
-		for key, value in self.state.items():
-			if key not in state or state[key].issuperset(value):
-				new_state[key] = value
-				continue
-			difference = value.difference(state[key])
-			if difference:
-				new_state[key] = difference
-		return Block(self.namespace, self.name, BlockState(new_state))
 
 	def isParentOf(self, other:Block):
 		if not isinstance(other, Block):
@@ -98,17 +83,14 @@ class Block:
 	def same_base(self, other:Block):
 		return self.namespace == other.namespace and self.name == other.name
 	
-	def _intersect_state(self, state:Dict[str, Iterable[str]]):
+	def _intersect_state(self, state:Dict[str, str]):
 		fulldict = dict()
 		keys = set(self.state.keys()).union(state.keys())
 		for key in keys:
 			if (key in self.state) and (key in state):
-				value_overlap = set(self.state[key]).intersection(state[key])
-				if not value_overlap:
+				if self.state[key] != state[key]:
 					return None
-				fulldict[key] = value_overlap
-			else:
-				fulldict[key] = self.state[key] if key in self.state else set(state[key])
+			fulldict[key] = self.state[key] if key in self.state else state[key]
 		return BlockState(fulldict)
 	
 	def __eq__(self, other:Block):
@@ -134,7 +116,7 @@ class Block:
 	
 	def __str__(self):
 		parts = [self.namespace, self.name]
-		parts.extend([f'{key}={",".join(value)}' for key, value in self.state.items()])
+		parts.extend([f'{key}={value}' for key, value in self.state.items()])
 		return ':'.join(parts)
 	
 	def __hash__(self) -> int:
@@ -202,15 +184,7 @@ class BlockCollection(Iterable[Block]):
 		self._contents.append(block)
 	
 	def _discard(self, block:Block):
-		filtered = []
-		for existing in self._contents:
-			if existing.isChildOf(block):
-				continue
-			if existing.same_base(block):
-				existing = existing.without_state(block.state)
-			if existing:
-				filtered.append(existing)
-		self._contents = filtered
+		self._contents = [b for b in self._contents if not b.isChildOf(block)]
 
 	def __iter__(self):
 		return iter(self._contents)
